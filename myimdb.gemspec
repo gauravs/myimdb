@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
      "test/helper.rb",
      "test/test_myimdb.rb"
   ]
+  s.homepage = %q{http://github.com/gauravs/myimdb}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{myimdb}
