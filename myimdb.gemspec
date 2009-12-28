@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
      "myimdb.gemspec",
      "pkg/myimdb-0.0.0.gem",
      "pkg/myimdb-0.1.0.gem",
+     "pkg/myimdb-0.2.0.gem",
      "test/helper.rb",
      "test/test_myimdb.rb"
   ]
