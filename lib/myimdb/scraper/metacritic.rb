@@ -6,7 +6,7 @@ module Myimdb
       end
     
       def rating
-        document.search("#metascore").inner_text.strip.to_f/10 rescue nil
+        document.css("#metascore").inner_text.strip.to_f/10 rescue nil
       end
     
       def votes
@@ -14,16 +14,16 @@ module Myimdb
       end
     
       def genres
-        document.search("#productinfo p:first strong ~ *").inner_text.scraper_unescape_html.split("|").map(&:strip_useless_chars) rescue []
+        document.css("#productinfo p:first").text.gsub(/^\S+:/, '').split("|").map(&:strip_useless_chars) rescue []
       end
     
       def plot
-        document.search("#productsummary .summarytext").inner_text.strip rescue nil
+        document.css("#productsummary .summarytext").inner_text.strip rescue nil
       end
     
       private
         def document
-          @document ||= Hpricot(open(@url))
+          @document ||= Nokogiri::HTML(open(@url))
         end
     end
   end
