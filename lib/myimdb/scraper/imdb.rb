@@ -6,11 +6,11 @@ module Myimdb
       end
     
       def directors
-        document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| a.text } rescue []
+        document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| a.text }
       end
     
       def writers
-        document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| a.text } rescue []
+        document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| a.text }
       end
     
       def rating
@@ -18,19 +18,19 @@ module Myimdb
       end
     
       def votes
-        document.css(".general.rating a").inner_text.strip.sub(',', '').to_i rescue nil
+        document.css(".general.rating a").inner_text.strip.sub(',', '').to_i
       end
     
       def genres
-        document.css('.info h5:contains("Genre:") + .info-content a:not(.tn15more)').collect{ |a| a.text } rescue []
+        document.css('.info h5:contains("Genre:") + .info-content a:not(.tn15more)').collect{ |a| a.text }
       end
     
       def tagline
-        document.css('.info h5:contains("Tagline:") + .info-content').children[0].text.strip rescue nil
+        document.css('.info h5:contains("Tagline:") + .info-content').children[0].text.strip
       end
     
       def plot
-        document.css('.info h5:contains("Plot:") + .info-content').children[0].text.strip rescue nil
+        document.css('.info h5:contains("Plot:") + .info-content').children[0].text.strip
       end
     
       def year
@@ -41,6 +41,8 @@ module Myimdb
         def document
           @document ||= Nokogiri::HTML(open(@url))
         end
+        
+        handle_exceptions_for :directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year
     end
   end
 end
