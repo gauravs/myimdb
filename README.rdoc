@@ -1,6 +1,6 @@
 = myimdb
 
-Description goes here.
+Utility gem for fetching movie details.
 
 == Note on Patches/Pull Requests
  
