@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+# point this file to a folder and all the folder inside it will be renamed
+require 'myimdb.rb'
+
+unless ARGV[0]
+  p "Source directory required - exiting"
+  exit(0)
+end
+
+file_paths = Dir["#{ARGV[0]}/*"]
+search_scope  = "imdb.com"
+
+file_paths.each do |path|
+  next if !File.directory?(path)
+  p "============================================"
+  name = File.basename(path)
+  if name.scan(/\[.*?\]/).size == 3
+    p "Skipping: #{name}"
+  else
+    p "Fetching details for: #{name}"
+    begin
+      search_result = Myimdb::Search::Google.search_text(name, search_scope)[0]
+      imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
+      new_name = name.gsub(/\[\S+\]/, "").strip
+      new_name << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
+      p "Renaming: #{name} to: #{new_name}"
+      new_path = File.join(File.dirname(path), new_name)
+      File.rename(path, new_path)
+    rescue
+      p "Unable to fetch details for: #{name}"
+    end
+  end
+end

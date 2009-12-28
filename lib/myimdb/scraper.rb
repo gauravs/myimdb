@@ -1,0 +1,5 @@
+require 'myimdb/scraper/string_extensions'
+require 'myimdb/scraper/base'
+require 'myimdb/scraper/imdb'
+require 'myimdb/scraper/metacritic'
+require 'myimdb/scraper/rotten_tomatoes'
