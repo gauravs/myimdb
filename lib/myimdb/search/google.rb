@@ -7,8 +7,8 @@ module Myimdb
       headers   'Content-Type' => 'application/json' 
       base_uri  'ajax.googleapis.com'
     
-      def self.search_text( text, restrict_to=nil )
-        text = "site:#{restrict_to} #{text}" if restrict_to
+      def self.search_text( text, options={} )
+        text = text + " site:#{options[:restrict_to]}" if !options[:restrict_to].blank?
         response = get( '/ajax/services/search/web', :query=> {:v=> '1.0', :q=> text} )
         response['responseData'] and response['responseData']['results']
       end

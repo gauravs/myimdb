@@ -26,7 +26,7 @@ module Myimdb
       end
     
       def tagline
-        document.css('.info h5:contains("Tagline:") + .info-content').children[0].text.strip
+        document.css('.info h5:contains("Tagline:") + .info-content').children[0].text.strip rescue nil
       end
     
       def plot
