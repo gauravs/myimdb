@@ -1,20 +1,62 @@
 #!/usr/bin/env ruby
 
-require 'myimdb.rb'
+require 'optparse'
+require 'myimdb'
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [movie name]"
+
+  opts.on("-h", "--help", "Displays this help info") do
+    puts opts
+    exit 0
+  end
+  
+  opts.on("-r", "--rottentomatoes", "Generates data from Rotten Tomatoes") do
+    options[:rottentomatoes] = true
+  end
+  
+  opts.on("-m", "--metacritic", "Generates data from Metacritic") do
+    options[:metacritic] = true
+  end
+  
+  opts.on("-i", "--imdb", "Generates data from Imdb") do
+    options[:imdb] = true
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
+end
+
+# add imdb as default
+options.merge!(:imdb=> true) if options.empty?
+
+# need a movie name
+if ARGV.empty?
+  abort "Movie name required - exiting"
+end
 
 name = ARGV.join(' ')
 
-if name.blank?
-  p "Movie name required - exiting"
-  exit(0)
+def details(klass_name, name)
+  search_scope  = "#{klass_name.downcase}.com"
+  
+  search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
+  site          = "Myimdb::Scraper::#{klass_name}".constantize.new(search_result["url"])
+  print "====================================================\n"
+  print "#{klass_name} details for: #{name}\n"
+  print "====================================================\n"
+  print "#{site.summary}\n"
+rescue
+  p "Unable to fetch #{klass_name} details for: #{name}"
 end
 
-search_scope  = "imdb.com"
-
-begin
-  search_result = Myimdb::Search::Google.search_text(name, search_scope)[0]
-  imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
-  print "#{imdb.summary}\n"
-rescue
-  p "Unable to fetch details for: #{name}"
+['Imdb', 'RottenTomatoes', 'Metacritic'].each do |site|
+  details(site, name) if options[site.downcase.to_sym]
 end

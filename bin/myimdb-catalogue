@@ -20,7 +20,7 @@ file_paths.each do |path|
   else
     p "Fetching details for: #{name}"
     begin
-      search_result = Myimdb::Search::Google.search_text(name, search_scope)[0]
+      search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
       imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
       new_name = name.gsub(/\[\S+\]/, "").strip
       new_name << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
