@@ -3,6 +3,7 @@ require 'rake'
 
 begin
   require 'jeweler'
+
   Jeweler::Tasks.new do |gem|
     gem.name = "myimdb"
     gem.summary = %Q{Utility gem for fetching movie details.}
@@ -14,7 +15,7 @@ begin
     gem.rubyforge_project = 'myimdb'
     gem.files = FileList["**/*"]
   end
-  
+
   Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"

@@ -14,7 +14,7 @@ search_scope  = "imdb.com"
 begin
   search_result = Myimdb::Search::Google.search_text(name, search_scope)[0]
   imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
-  p imdb
+  print "#{imdb.summary}\n"
 rescue
   p "Unable to fetch details for: #{name}"
 end
