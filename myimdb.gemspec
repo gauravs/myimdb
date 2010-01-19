@@ -35,7 +35,6 @@ Gem::Specification.new do |s|
      "lib/myimdb/search.rb",
      "lib/myimdb/search/google.rb",
      "myimdb.gemspec",
-     "pkg/myimdb-0.3.1.gem",
      "test/helper.rb",
      "test/test_myimdb.rb"
   ]
