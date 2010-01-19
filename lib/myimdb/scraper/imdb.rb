@@ -14,11 +14,11 @@ module Myimdb
       end
     
       def rating
-        document.css(".general.rating b").inner_text.strip.split('/').first.to_f
+        document.css(".starbar-meta b").inner_text.strip.split('/').first.to_f
       end
     
       def votes
-        document.css(".general.rating a").inner_text.strip.sub(',', '').to_i
+        document.css(".starbar-meta a").inner_text.strip.split(' ').first.sub(',', '').to_i
       end
     
       def genres
@@ -36,7 +36,11 @@ module Myimdb
       def year
         document.css("div#tn15title a:first")[0].text.to_i
       end
-    
+      
+      def release_date
+        Date.parse(document.css('.info h5:contains("Release Date:") + .info-content').inner_text)
+      end
+      
       private
         def document
           @document ||= Nokogiri::HTML(open(@url))

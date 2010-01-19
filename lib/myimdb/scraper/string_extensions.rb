@@ -15,6 +15,14 @@ module Myimdb
       def strip_useless_chars
         gsub(/[^a-zA-z0-9\|\-_\(\)@$\/\\]/, '')
       end
+      
+      def titleize
+        humanize.gsub(/\b('?[a-z])/) { $1.capitalize }
+      end
+      
+      def humanize
+        gsub(/_/, " ").capitalize
+      end
     end
   end
 end

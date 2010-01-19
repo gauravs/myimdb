@@ -29,17 +29,41 @@ module Myimdb
   module Scraper
     class Base
       include HandleExceptions
-      def year
-      end
-  
-      def tagline
-      end
-  
       def directors
       end
-  
+    
       def writers
       end
+    
+      def rating
+      end
+    
+      def votes
+      end
+    
+      def genres
+      end
+    
+      def tagline
+      end
+    
+      def plot
+      end
+    
+      def year
+      end
+      
+      def release_date
+      end
+      
+      def summary
+        [:directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year, :release_date].collect do |meth|
+          data = send(meth)
+          data = data.join(", ") if Array === data
+          sprintf("%-15s : %s", meth.to_s.titleize, data)
+        end.join("\n")
+      end
+
     end
   end
 end
