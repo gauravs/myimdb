@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{myimdb}
-  s.version = "0.3.0"
+  s.version = "0.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaurav"]
@@ -35,7 +35,6 @@ Gem::Specification.new do |s|
      "lib/myimdb/search.rb",
      "lib/myimdb/search/google.rb",
      "myimdb.gemspec",
-     "pkg/myimdb-0.3.0.gem",
      "test/helper.rb",
      "test/test_myimdb.rb"
   ]
