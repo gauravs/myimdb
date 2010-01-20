@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-# point this file to a folder and all the folder inside it will be renamed
 require 'open-uri'
 require 'optparse'
 require 'myimdb'
@@ -148,7 +147,7 @@ file_paths.each do |path|
         retry_count < image_retry_limit ? retry : raise
       end
     end
-  # rescue
-  #   p "Unable to fetch details for: #{name}"
+  rescue
+    p "Unable to fetch details for: #{name}"
   end
 end
