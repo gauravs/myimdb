@@ -1,34 +1,154 @@
 #!/usr/bin/env ruby
 
 # point this file to a folder and all the folder inside it will be renamed
-require 'myimdb.rb'
+require 'open-uri'
+require 'optparse'
+require 'myimdb'
 
-unless ARGV[0]
-  p "Source directory required - exiting"
-  exit(0)
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [movie name]"
+
+  opts.on("-h", "--help", "Displays this help info") do
+    puts opts
+    exit 0
+  end
+  
+  opts.on("-f", "--force", "Force generate data even if already present") do
+    options[:force] = true
+  end
+  
+  opts.on("-m", "--metadata", "Generates metadata (renames folders)") do
+    options[:metadata] = true
+  end
+  
+  opts.on("-i", "--images", "Generates images (only applies to windows)") do
+    options[:images] = true
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
 end
 
-file_paths = Dir["#{ARGV[0]}/*"]
-search_scope  = "imdb.com"
+# add imdb as default
+options.merge!(:metadata=> true) if options.empty?
+
+# need a movie name
+if ARGV.empty?
+  abort "Source directory required - exiting"
+end
+
+class Platform
+  class << self
+    def windows?
+      RUBY_PLATFORM =~ /mswin|windows/i
+    end
+    
+    def mac?
+      RUBY_PLATFORM =~ /darwin/i
+    end
+    
+    def linux?
+      RUBY_PLATFORM =~ /linux/i
+    end
+  end
+end
+
+file_paths    = Dir["#{ARGV[0]}/*"]
+
+def save_image(target_dir, name, image_index=0)
+  image_data = Myimdb::Search::Google.search_images(name, :size=> 'medium')[image_index]
+  image_url  = image_data["url"] if image_data
+  if image_url
+    image_file_path = File.join(target_dir, 'movie.jpg')
+    conf_file_path = File.join(target_dir, 'desktop.ini')
+    open(image_url) do |file|
+      File.open(image_file_path, 'wb') do |image_file|
+        image_file.puts file.read
+      end
+    end
+
+    `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{File.join(target_dir, 'movie.ico')}"`
+
+    if Platform.windows?
+      File.delete(conf_file_path) if File.exists?(conf_file_path)
+      File.open(conf_file_path, 'wb') do |conf|
+        conf.puts "[.ShellClassInfo]"
+        conf.puts "IconResource=movie.ico,0"
+      end
+      `attrib -s +h "#{conf_file_path}"`
+      `attrib -r "#{target_dir}"`
+      `attrib +r "#{target_dir}"`
+    end
+
+    File.delete(image_file_path)
+  end
+end
+
+def generate_metadata(path, name)
+  search_scope  = "imdb.com"
+
+  search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
+  imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
+  new_name      = name.gsub(/\[\S+\]/, "").strip
+  new_name      << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
+  p "Renaming: #{name} to: #{new_name}"
+  new_path = File.join(File.dirname(path), new_name)
+  File.rename(path, new_path)
+  new_path
+end
+
+def filtered_movie_name(name)
+  name.gsub(/\[.*?\]/,'').strip
+end
+
+def filtered_movie_year(name)
+  name.scan(/\[(\d+)\]/).flatten.first
+end
+
+
+image_retry_limit = 2
 
 file_paths.each do |path|
+  retry_count       = 0
+  metadata_present  = false
+
   next if !File.directory?(path)
-  p "============================================"
-  name = File.basename(path)
-  if name.scan(/\[.*?\]/).size == 3
-    p "Skipping: #{name}"
-  else
-    p "Fetching details for: #{name}"
-    begin
-      search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
-      imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
-      new_name = name.gsub(/\[\S+\]/, "").strip
-      new_name << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
-      p "Renaming: #{name} to: #{new_name}"
-      new_path = File.join(File.dirname(path), new_name)
-      File.rename(path, new_path)
-    rescue
-      p "Unable to fetch details for: #{name}"
+  begin
+    name = File.basename(path)
+
+    metadata_present = (name.scan(/\[.*?\]/).size == 3)
+    # metadata exists and -f isn't supplied
+    if metadata_present and !options[:force]
+      p "Skipping: Metadata already exists for: #{name}"
+    elsif options[:metadata]
+      p "Fetching metadata for: #{name}"
+      path = generate_metadata(path, filtered_movie_name(name))
     end
+    
+    # movie icon exists and -f isn't supplied
+    if !metadata_present
+      p "Skipping: Metadata not present: #{name}"
+      next
+    elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force]
+      p "Skipping: Image already exists for: #{name}"
+      next
+    elsif options[:images]
+      p "Fetching image for: #{name}"
+      begin
+        save_image(path, "#{filtered_movie_name(name)} #{filtered_movie_year(name)}", retry_count)
+      rescue
+        retry_count += 1
+        retry_count < image_retry_limit ? retry : raise
+      end
+    end
+  # rescue
+  #   p "Unable to fetch details for: #{name}"
   end
 end
