@@ -31,8 +31,14 @@ module Myimdb
       include HandleExceptions
       def directors
       end
+      
+      def directors_with_url
+      end
     
       def writers
+      end
+      
+      def writers_with_url
       end
     
       def rating

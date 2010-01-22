@@ -8,9 +8,17 @@ module Myimdb
       def directors
         document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| a.text }
       end
+      
+      def directors_with_url
+        document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
+      end
     
       def writers
         document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| a.text }
+      end
+      
+      def writers_with_url
+        document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
       end
     
       def rating
@@ -46,7 +54,7 @@ module Myimdb
           @document ||= Nokogiri::HTML(open(@url))
         end
         
-        handle_exceptions_for :directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year
+        handle_exceptions_for :directors, :directors_with_url, :writers, :writers_with_url, :rating, :votes, :genres, :tagline, :plot, :year
     end
   end
 end

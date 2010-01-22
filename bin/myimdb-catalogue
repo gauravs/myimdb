@@ -134,10 +134,8 @@ file_paths.each do |path|
     # movie icon exists and -f isn't supplied
     if !metadata_present
       p "Skipping: Metadata not present: #{name}"
-      next
     elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force]
       p "Skipping: Image already exists for: #{name}"
-      next
     elsif options[:images]
       p "Fetching image for: #{name}"
       begin
