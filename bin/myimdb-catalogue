@@ -42,8 +42,12 @@ OptionParser.new do |opts|
     options[:images] = true
   end
   
+  opts.on("-r", "--recursive", "Generate data on all the directories given in current directory") do
+    options[:recursive] = true
+  end
+  
   if Platform.windows?
-    opts.on("-r", "--rebuild-permissions", "Rebuilds permissions (useful if the icons have been changed manually)") do
+    opts.on("-p", "--rebuild-permissions", "Rebuilds permissions (useful if the icons have been changed manually)") do
       options[:'rebuild-permissions'] = true
     end
   end
@@ -65,7 +69,7 @@ if ARGV.empty?
   abort "Source directory required - exiting"
 end
 
-file_paths    = Dir["#{ARGV[0]}/*"]
+file_paths = options[:recursive] ? Dir["#{ARGV[0]}/*"] : Dir[ARGV[0]]
 
 
 # helper methods
