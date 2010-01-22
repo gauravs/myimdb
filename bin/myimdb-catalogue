@@ -7,7 +7,7 @@ require 'myimdb'
 class Platform
   class << self
     def windows?
-      RUBY_PLATFORM =~ /mswin|windows/i
+      RUBY_PLATFORM =~ /mswin|windows|mingw/i
     end
     
     def mac?
@@ -69,7 +69,7 @@ if ARGV.empty?
   abort "Source directory required - exiting"
 end
 
-file_paths = options[:recursive] ? Dir["#{ARGV[0]}/*"] : Dir[ARGV[0]]
+file_paths = options[:recursive] ? Dir["#{ARGV[0]}/*"] : [ARGV[0]]
 
 
 # helper methods
@@ -77,7 +77,7 @@ def conf_file_name
   'desktop.ini'
 end
 
-def icon_file_path
+def icon_file_name
   if Platform.windows?
     'movie.ico'
   else
@@ -109,7 +109,7 @@ def repair_permissions_for(target_dir)
 end
 
 def convert_to_icon(image_file_path, icon_file_path)
-  `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{File.join(target_dir, '#{icon_file_path}')}"`
+  `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{icon_file_path}"`
 end
 
 def save_image(target_dir, name, image_index=0)
@@ -123,8 +123,8 @@ def save_image(target_dir, name, image_index=0)
         image_file.puts file.read
       end
     end
-
-    convert_to_icon(image_file_path, icon_file_path)
+  
+    convert_to_icon(image_file_path, File.join(target_dir, icon_file_name))
 
     if Platform.windows?
       repair_permissions_for(target_dir)
@@ -161,7 +161,7 @@ file_paths.each do |path|
 
     metadata_present = (name.scan(/\[.*?\]/).size == 3)
     # metadata exists and -f isn't supplied
-    if metadata_present and !options[:force]
+    if metadata_present and !options[:force] and options[:metadata]
       p "Skipping: Metadata already exists for: #{name}"
     elsif options[:metadata]
       p "Fetching metadata for: #{name}"
@@ -171,7 +171,7 @@ file_paths.each do |path|
     # movie icon exists and -f isn't supplied
     if !metadata_present
       p "Skipping: Metadata not present: #{name}"
-    elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force]
+    elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force] and options[:images]
       p "Skipping: Image already exists for: #{name}"
     elsif options[:images]
       p "Fetching image for: #{name}"
@@ -184,6 +184,7 @@ file_paths.each do |path|
     end
     
     if options[:'rebuild-permissions']
+      p "Repairing permissions for for: #{name}"
       repair_permissions_for(path)
     end
   rescue
