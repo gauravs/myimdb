@@ -9,6 +9,14 @@ class Platform
     def windows?
       RUBY_PLATFORM =~ /mswin|windows|mingw/i
     end
+  
+    def xp?
+      ENV["ALLUSERSPROFILE"] =~ /Documents and Settings/
+    end
+  
+    def vista_or_later?
+      !xp?
+    end
     
     def mac?
       RUBY_PLATFORM =~ /darwin/i
@@ -85,6 +93,14 @@ def icon_file_name
   end
 end
 
+def icon_size
+  if Platform.windows?
+    Platform.vista_or_later? ? '256x256' : '128x128'
+  else
+    '512x512'
+  end
+end
+
 def filtered_movie_name(name)
   name.gsub(/\[.*?\]/,'').strip
 end
@@ -109,7 +125,7 @@ def repair_permissions_for(target_dir)
 end
 
 def convert_to_icon(image_file_path, icon_file_path)
-  `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{icon_file_path}"`
+  `convert "#{image_file_path}" -thumbnail #{icon_size} -gravity center -crop #{icon_size}+0+0! -background transparent -flatten "#{icon_file_path}"`
 end
 
 def save_image(target_dir, name, image_index=0)
