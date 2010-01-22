@@ -4,6 +4,22 @@ require 'open-uri'
 require 'optparse'
 require 'myimdb'
 
+class Platform
+  class << self
+    def windows?
+      RUBY_PLATFORM =~ /mswin|windows/i
+    end
+    
+    def mac?
+      RUBY_PLATFORM =~ /darwin/i
+    end
+    
+    def linux?
+      RUBY_PLATFORM =~ /linux/i
+    end
+  end
+end
+
 options = {}
 
 OptionParser.new do |opts|
@@ -22,8 +38,14 @@ OptionParser.new do |opts|
     options[:metadata] = true
   end
   
-  opts.on("-i", "--images", "Generates images (only applies to windows)") do
+  opts.on("-i", "--images", "Generates images (works properly only on windows)") do
     options[:images] = true
+  end
+  
+  if Platform.windows?
+    opts.on("-r", "--rebuild-permissions", "Rebuilds permissions (useful if the icons have been changed manually)") do
+      options[:'rebuild-permissions'] = true
+    end
   end
 
   begin
@@ -43,47 +65,65 @@ if ARGV.empty?
   abort "Source directory required - exiting"
 end
 
-class Platform
-  class << self
-    def windows?
-      RUBY_PLATFORM =~ /mswin|windows/i
-    end
-    
-    def mac?
-      RUBY_PLATFORM =~ /darwin/i
-    end
-    
-    def linux?
-      RUBY_PLATFORM =~ /linux/i
-    end
+file_paths    = Dir["#{ARGV[0]}/*"]
+
+
+# helper methods
+def conf_file_name
+  'desktop.ini'
+end
+
+def icon_file_path
+  if Platform.windows?
+    'movie.ico'
+  else
+    'movie.png'
   end
 end
 
-file_paths    = Dir["#{ARGV[0]}/*"]
+def filtered_movie_name(name)
+  name.gsub(/\[.*?\]/,'').strip
+end
+
+def filtered_movie_year(name)
+  name.scan(/\[(\d+)\]/).flatten.first
+end
+# helper methods - end
+
+def repair_permissions_for(target_dir)
+  conf_file_path = File.join(target_dir, conf_file_name)
+  File.delete(conf_file_path) if File.exists?(conf_file_path)
+
+  File.open(conf_file_path, 'wb') do |conf|
+    conf.puts "[.ShellClassInfo]"
+    conf.puts "IconResource=movie.ico,0"
+  end
+
+  `attrib -s +h "#{conf_file_path}"`
+  `attrib -r "#{target_dir}"`
+  `attrib +r "#{target_dir}"`
+end
+
+def convert_to_icon(image_file_path, icon_file_path)
+  `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{File.join(target_dir, '#{icon_file_path}')}"`
+end
 
 def save_image(target_dir, name, image_index=0)
   image_data = Myimdb::Search::Google.search_images(name, :size=> 'medium')[image_index]
   image_url  = image_data["url"] if image_data
+
   if image_url
     image_file_path = File.join(target_dir, 'movie.jpg')
-    conf_file_path = File.join(target_dir, 'desktop.ini')
     open(image_url) do |file|
       File.open(image_file_path, 'wb') do |image_file|
         image_file.puts file.read
       end
     end
 
-    `convert "#{image_file_path}" -thumbnail 256x256 -gravity center -crop 256x256+0+0! -background transparent -flatten "#{File.join(target_dir, 'movie.ico')}"`
+    convert_to_icon(image_file_path, icon_file_path)
 
     if Platform.windows?
-      File.delete(conf_file_path) if File.exists?(conf_file_path)
-      File.open(conf_file_path, 'wb') do |conf|
-        conf.puts "[.ShellClassInfo]"
-        conf.puts "IconResource=movie.ico,0"
-      end
-      `attrib -s +h "#{conf_file_path}"`
-      `attrib -r "#{target_dir}"`
-      `attrib +r "#{target_dir}"`
+      repair_permissions_for(target_dir)
     end
 
     File.delete(image_file_path)
@@ -103,14 +143,6 @@ def generate_metadata(path, name)
   new_path
 end
 
-def filtered_movie_name(name)
-  name.gsub(/\[.*?\]/,'').strip
-end
-
-def filtered_movie_year(name)
-  name.scan(/\[(\d+)\]/).flatten.first
-end
-
 
 image_retry_limit = 2
 
@@ -119,6 +151,7 @@ file_paths.each do |path|
   metadata_present  = false
 
   next if !File.directory?(path)
+
   begin
     name = File.basename(path)
 
@@ -144,6 +177,10 @@ file_paths.each do |path|
         retry_count += 1
         retry_count < image_retry_limit ? retry : raise
       end
+    end
+    
+    if options[:'rebuild-permissions']
+      repair_permissions_for(path)
     end
   rescue
     p "Unable to fetch details for: #{name}"

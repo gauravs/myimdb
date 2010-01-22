@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{myimdb}
-  s.version = "0.3.4"
+  s.version = "0.3.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaurav"]
-  s.date = %q{2010-01-20}
+  s.date = %q{2010-01-22}
   s.email = %q{gaurav@vinsol.com}
-  s.executables = ["myimdb", "myimdb-catalogue", "myimdb-catalogue.bat", "myimdb.bat"]
+  s.executables = ["myimdb", "myimdb-catalogue"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -23,8 +23,6 @@ Gem::Specification.new do |s|
      "VERSION",
      "bin/myimdb",
      "bin/myimdb-catalogue",
-     "bin/myimdb-catalogue.bat",
-     "bin/myimdb.bat",
      "lib/myimdb.rb",
      "lib/myimdb/scraper.rb",
      "lib/myimdb/scraper/base.rb",
@@ -35,8 +33,6 @@ Gem::Specification.new do |s|
      "lib/myimdb/search.rb",
      "lib/myimdb/search/google.rb",
      "myimdb.gemspec",
-     "pkg/myimdb-0.3.3.gem",
-     "pkg/myimdb-0.3.4.gem",
      "test/helper.rb",
      "test/test_myimdb.rb"
   ]
