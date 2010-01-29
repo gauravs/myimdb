@@ -99,17 +99,21 @@ end
 # helper methods - end
 
 def repair_permissions_for(target_dir)
-  conf_file_path = File.join(target_dir, conf_file_name)
-  File.delete(conf_file_path) if File.exists?(conf_file_path)
+  if Platform.windows?
+    conf_file_path = File.join(target_dir, conf_file_name)
+    File.delete(conf_file_path) if File.exists?(conf_file_path)
 
-  File.open(conf_file_path, 'wb') do |conf|
-    conf.puts "[.ShellClassInfo]"
-    conf.puts "IconResource=movie.ico,0"
+    File.open(conf_file_path, 'wb') do |conf|
+      conf.puts "[.ShellClassInfo]"
+      conf.puts "IconResource=movie.ico,0"
+    end
+
+    `attrib -s +h "#{conf_file_path}"`
+    `attrib -r "#{target_dir}"`
+    `attrib +r "#{target_dir}"`
+  else
+    p 'Skipping permission repair; Windows required for this command'
   end
-
-  `attrib -s +h "#{conf_file_path}"`
-  `attrib -r "#{target_dir}"`
-  `attrib +r "#{target_dir}"`
 end
 
 def convert_to_icon(image_file_path, icon_file_path)
@@ -130,10 +134,6 @@ def save_image(target_dir, name, image_index=0)
 
     convert_to_icon(image_file_path, File.join(target_dir, icon_file_name))
 
-    if Platform.windows?
-      repair_permissions_for(target_dir)
-    end
-
     File.delete(image_file_path) if File.exists?(image_file_path)
   end
 end
@@ -150,7 +150,6 @@ def generate_metadata(path, name)
   File.rename(path, new_path)
   new_path
 end
-
 
 image_retry_limit = 2
 
@@ -170,10 +169,11 @@ file_paths.each do |path|
     elsif options[:metadata]
       p "Fetching metadata for: #{name}"
       path = generate_metadata(path, filtered_movie_name(name))
+      metadata_present = true
     end
     
     # movie icon exists and -f isn't supplied
-    if !metadata_present
+    if !metadata_present and options[:images]
       p "Skipping: Metadata not present: #{name}"
     elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force] and options[:images]
       p "Skipping: Image already exists for: #{name}"
@@ -187,11 +187,6 @@ file_paths.each do |path|
       end
     end
     
-    if options[:'rebuild-permissions']
-      p "Repairing permissions for: #{name}"
-      repair_permissions_for(path)
-    end
-    
     if options[:'apply-icon']
       source_file = Dir.entries(path).find{ |file| file =~ /\.jpg|\.png/ }
       if source_file
@@ -200,6 +195,11 @@ file_paths.each do |path|
       else
         p "Source image file not found for: #{name}"
       end
+    end
+    
+    if options[:'rebuild-permissions'] or options[:'apply-icon'] or (options[:images] and metadata_present)
+      p "Repairing permissions for: #{name}"
+      repair_permissions_for(path)
     end
   rescue
     p "Unable to fetch details for: #{name}"
