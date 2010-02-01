@@ -49,12 +49,20 @@ module Myimdb
         Date.parse(document.css('.info h5:contains("Release Date:") + .info-content').inner_text)
       end
       
+      def image
+        image_url = document.css(".photo:first a").first['href']
+        unless image_url.nil? or image_url =~ /addposter/
+          image_document = Nokogiri::HTML(open("http://www.imdb.com#{image_url}"))
+          image_document.css('#principal img:first').first['src']
+        end
+      end
+      
       private
         def document
           @document ||= Nokogiri::HTML(open(@url))
         end
         
-        handle_exceptions_for :directors, :directors_with_url, :writers, :writers_with_url, :rating, :votes, :genres, :tagline, :plot, :year
+        handle_exceptions_for :directors, :directors_with_url, :writers, :writers_with_url, :rating, :votes, :genres, :tagline, :plot, :year, :image
     end
   end
 end

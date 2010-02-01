@@ -54,7 +54,7 @@ def details(klass_name, name)
   print "====================================================\n"
   print "#{site.summary}\n"
 rescue Exception=> ex
-  p "Unable to fetch #{klass_name} details for: #{name}"
+  p "Unable to fetch #{klass_name} details for: #{name} because: #{ex.message}"
 end
 
 ['Imdb', 'RottenTomatoes', 'Metacritic'].each do |site|

@@ -62,6 +62,9 @@ module Myimdb
       def release_date
       end
       
+      def image
+      end
+      
       def summary
         [:directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year, :release_date].collect do |meth|
           data = send(meth)

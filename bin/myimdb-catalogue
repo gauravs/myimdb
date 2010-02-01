@@ -208,6 +208,6 @@ file_paths.each do |path|
       repair_permissions_for(path)
     end
   rescue Exception=> ex
-    puts "Unable to fetch details for: #{name}"
+    puts "Unable to fetch details for: #{name} because: #{ex.message}"
   end
 end
