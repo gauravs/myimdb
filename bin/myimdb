@@ -53,7 +53,7 @@ def details(klass_name, name)
   print "#{klass_name} details for: #{name}\n"
   print "====================================================\n"
   print "#{site.summary}\n"
-rescue
+rescue Exception=> ex
   p "Unable to fetch #{klass_name} details for: #{name}"
 end
 

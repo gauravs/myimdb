@@ -22,6 +22,11 @@ end
 
 options = {}
 
+def puts(data)
+  print("#{data}\n")
+  STDOUT.flush
+end
+
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [movie name]"
 
@@ -63,18 +68,19 @@ OptionParser.new do |opts|
     puts opts
     exit 1
   end
+  
+  # need a movie name
+  if ARGV.empty?
+    puts opts
+    exit(0)
+  end
 end
 
 # add imdb as default
 options.merge!(:metadata=> true) if options.empty?
 
-# need a movie name
-if ARGV.empty?
-  abort "Source directory required - exiting"
-end
-
-file_paths = options[:recursive] ? Dir["#{ARGV[0]}/*"] : [ARGV[0]]
-
+source_dir = Platform.windows? ? ARGV[0].gsub(/\\+/, "/") : ARGV[0]
+file_paths = options[:recursive] ? Dir["#{source_dir}/*"] : [source_dir]
 
 # helper methods
 def conf_file_name
@@ -145,7 +151,7 @@ def generate_metadata(path, name)
   imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
   new_name      = name.gsub(/\[\S+\]/, "").strip
   new_name      << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
-  p "Renaming: #{name} to: #{new_name}"
+  puts "Renaming: #{name} to: #{new_name}"
   new_path = File.join(File.dirname(path), new_name)
   File.rename(path, new_path)
   new_path
@@ -165,20 +171,30 @@ file_paths.each do |path|
     metadata_present = (name.scan(/\[.*?\]/).size == 3)
     # metadata exists and -f isn't supplied
     if metadata_present and !options[:force] and options[:metadata]
-      p "Skipping: Metadata already exists for: #{name}"
+      puts "Skipping: Metadata already exists for: #{name}"
     elsif options[:metadata]
-      p "Fetching metadata for: #{name}"
+      puts "Fetching metadata for: #{name}"
       path = generate_metadata(path, filtered_movie_name(name))
       metadata_present = true
     end
     
+    if options[:'apply-icon']
+      source_file = Dir.entries(path).find{ |file| file =~ /\.jpg|\.png/ }
+      if source_file
+        puts "Applying icon for: #{name}"
+        convert_to_icon(File.join(path, source_file), File.join(path, icon_file_name))
+      else
+        puts "Source image file not found for: #{name}"
+      end
+    end
+    
     # movie icon exists and -f isn't supplied
     if !metadata_present and options[:images]
-      p "Skipping: Metadata not present: #{name}"
+      puts "Skipping: Metadata not present: #{name}"
     elsif File.exists?(File.join(path, 'movie.ico')) and !options[:force] and options[:images]
-      p "Skipping: Image already exists for: #{name}"
+      puts "Skipping: Image already exists for: #{name}"
     elsif options[:images]
-      p "Fetching image for: #{name}"
+      puts "Fetching image for: #{name}"
       begin
         save_image(path, "#{filtered_movie_name(name)} #{filtered_movie_year(name)}", retry_count)
       rescue
@@ -187,21 +203,11 @@ file_paths.each do |path|
       end
     end
     
-    if options[:'apply-icon']
-      source_file = Dir.entries(path).find{ |file| file =~ /\.jpg|\.png/ }
-      if source_file
-        p "Applying icon for: #{name}"
-        convert_to_icon(File.join(path, source_file), File.join(path, icon_file_name))
-      else
-        p "Source image file not found for: #{name}"
-      end
-    end
-    
     if options[:'rebuild-permissions'] or options[:'apply-icon'] or (options[:images] and metadata_present)
-      p "Repairing permissions for: #{name}"
+      puts "Repairing permissions for: #{name}"
       repair_permissions_for(path)
     end
-  rescue
-    p "Unable to fetch details for: #{name}"
+  rescue Exception=> ex
+    puts "Unable to fetch details for: #{name}"
   end
 end
