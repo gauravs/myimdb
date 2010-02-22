@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaurav"]
-  s.date = %q{2010-02-01}
+  s.date = %q{2010-02-22}
   s.email = %q{gaurav@vinsol.com}
   s.executables = ["myimdb", "myimdb-catalogue"]
   s.extra_rdoc_files = [
@@ -31,6 +31,8 @@ Gem::Specification.new do |s|
      "lib/myimdb/scraper/rotten_tomatoes.rb",
      "lib/myimdb/scraper/string_extensions.rb",
      "lib/myimdb/search.rb",
+     "lib/myimdb/search/base.rb",
+     "lib/myimdb/search/bing.rb",
      "lib/myimdb/search/google.rb",
      "myimdb.gemspec",
      "test/helper.rb",
