@@ -48,13 +48,13 @@ def details(klass_name, name)
   search_scope  = "#{klass_name.downcase}.com"
   
   search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
-  site          = "Myimdb::Scraper::#{klass_name}".constantize.new(search_result["url"])
-  print "====================================================\n"
-  print "#{klass_name} details for: #{name}\n"
-  print "====================================================\n"
-  print "#{site.summary}\n"
+  site          = eval("Myimdb::Scraper::#{klass_name}").new(search_result[:url])
+  puts "===================================================="
+  puts "#{klass_name} details for: #{name}"
+  puts "===================================================="
+  puts "#{site.summary}\n"
 rescue Exception=> ex
-  p "Unable to fetch #{klass_name} details for: #{name} because: #{ex.message}"
+  puts "Unable to fetch #{klass_name} details for: #{name} because: #{ex.message}"
 end
 
 ['Imdb', 'RottenTomatoes', 'Metacritic'].each do |site|

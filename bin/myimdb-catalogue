@@ -118,7 +118,7 @@ def repair_permissions_for(target_dir)
     `attrib -r "#{target_dir}"`
     `attrib +r "#{target_dir}"`
   else
-    p 'Skipping permission repair; Windows required for this command'
+    p 'Skipping permission repair; Only works on Windows.'
   end
 end
 
@@ -128,7 +128,7 @@ end
 
 def save_image(target_dir, name, image_index=0)
   image_data = Myimdb::Search::Google.search_images(name, :size=> 'medium')[image_index]
-  image_url  = image_data["url"] if image_data
+  image_url  = image_data[:url] if image_data
 
   if image_url
     image_file_path = File.join(target_dir, 'movie.jpg')
@@ -148,7 +148,7 @@ def generate_metadata(path, name)
   search_scope  = "imdb.com"
 
   search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
-  imdb          = Myimdb::Scraper::Imdb.new(search_result["url"])
+  imdb          = Myimdb::Scraper::Imdb.new(search_result[:url])
   new_name      = name.gsub(/\[\S+\]/, "").strip
   new_name      << " [#{imdb.year}] [#{imdb.rating},#{imdb.votes}] [#{imdb.directors.join(',')}]"
   puts "Renaming: #{name} to: #{new_name}"

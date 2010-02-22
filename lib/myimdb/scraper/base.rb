@@ -5,10 +5,10 @@ module HandleExceptions
     base.send(:include, InstanceMethods)
     base.send(:extend, ClassMethods)
   end
-  
+
   module InstanceMethods
   end
-  
+
   module ClassMethods
     def handle_exceptions_for(*method_names)
       method_names.each do |method_name|
@@ -29,47 +29,26 @@ module Myimdb
   module Scraper
     class Base
       include HandleExceptions
-      def directors
-      end
-      
-      def directors_with_url
-      end
-    
-      def writers
-      end
-      
-      def writers_with_url
-      end
-    
-      def rating
-      end
-    
-      def votes
-      end
-    
-      def genres
-      end
-    
-      def tagline
-      end
-    
-      def plot
-      end
-    
-      def year
-      end
-      
-      def release_date
-      end
-      
-      def image
-      end
-      
+      include Myimdb::Scraper::StringExtensions
+
+      def directors; end
+      def directors_with_url; end
+      def writers; end
+      def writers_with_url; end
+      def rating; end
+      def votes; end
+      def genres; end
+      def tagline; end
+      def plot; end
+      def year; end
+      def release_date; end
+      def image; end
+
       def summary
         [:directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year, :release_date].collect do |meth|
           data = send(meth)
           data = data.join(", ") if Array === data
-          sprintf("%-15s : %s", meth.to_s.titleize, data)
+          sprintf("%-15s : %s", meth.to_s.capitalize, data)
         end.join("\n")
       end
 
