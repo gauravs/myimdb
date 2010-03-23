@@ -8,6 +8,20 @@ module Myimdb
             search_result[:title].gsub(/ \(.*$/, "")
           end
         end
+
+        def search( text, options )
+          engines = [Myimdb::Search::Google, Myimdb::Search::Bing]
+
+          def search(engine, text, options)
+            engine.search_text(text, options)
+          end
+
+          engines.each do |engine|
+            puts "Retrying using #{engine}" unless engines.index(engine) == 0
+            result = search(engine, text, options)
+            return result unless result.nil? or result.empty?
+          end
+        end
       end
     end
   end

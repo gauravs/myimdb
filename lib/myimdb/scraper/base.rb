@@ -1,4 +1,5 @@
 class UnformattedHtml < Exception; end
+class DocumentNotFound < Exception; end
 
 module HandleExceptions
   def self.included(base)
@@ -30,7 +31,8 @@ module Myimdb
     class Base
       include HandleExceptions
       include Myimdb::Scraper::StringExtensions
-
+      
+      def name; end
       def directors; end
       def directors_with_url; end
       def writers; end

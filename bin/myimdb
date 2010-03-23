@@ -21,6 +21,10 @@ OptionParser.new do |opts|
     options[:metacritic] = true
   end
   
+  opts.on("-b", "--freebase", "Generates data from Freebase") do
+    options[:freebase] = true
+  end
+  
   opts.on("-i", "--imdb", "Generates data from Imdb") do
     options[:imdb] = true
   end
@@ -46,8 +50,7 @@ name = ARGV.join(' ')
 
 def details(klass_name, name)
   search_scope  = "#{klass_name.downcase}.com"
-  
-  search_result = Myimdb::Search::Google.search_text(name, :restrict_to=> search_scope)[0]
+  search_result = Myimdb::Search::Base.search(name, :restrict_to=> search_scope)[0]
   site          = eval("Myimdb::Scraper::#{klass_name}").new(search_result[:url])
   puts "===================================================="
   puts "#{klass_name} details for: #{name}"
@@ -57,6 +60,6 @@ rescue Exception=> ex
   puts "Unable to fetch #{klass_name} details for: #{name} because: #{ex.message}"
 end
 
-['Imdb', 'RottenTomatoes', 'Metacritic'].each do |site|
+['Imdb', 'RottenTomatoes', 'Metacritic', 'Freebase'].each do |site|
   details(site, name) if options[site.downcase.to_sym]
 end
