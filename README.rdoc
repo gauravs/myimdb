@@ -8,30 +8,55 @@ Utility gem for fetching movie details.
 
 ==== Command line info for a movie
 
-  ~> myimdb the dark knight
+  ~> myimdb
+  Usage: myimdb [movie name]
+      -h, --help                       Displays this help info
+      -r, --rottentomatoes             Generates data from Rotten Tomatoes
+      -m, --metacritic                 Generates data from Metacritic
+      -b, --freebase                   Generates data from Freebase
+      -i, --imdb                       Generates data from Imdb
+  ~> myimdb the dark knight -i -b
   ====================================================
   Imdb details for: the dark knight
   ====================================================
   Directors       : Christopher Nolan
   Writers         : Jonathan Nolan, Christopher Nolan
   Rating          : 8.9
-  Votes           : 420667
+  Votes           : 430594
   Genres          : Action, Crime, Drama, Thriller
   Tagline         : Why So Serious?
-  Plot            : Batman, Gordon and Harvey Dent are forced to deal with the chaos unleashed by an anarchist mastermind known only as the Joker, as it drives each of them to their limits.
+  Plot            : Batman, Gordon and Harvey Dent are forced to deal with the chaos (truncated)...
   Year            : 2008
-  Release Date    : 2008-07-18
+  Release_date    : 2008-07-18
+  ====================================================
+  Freebase details for: the dark knight
+  ====================================================
+  Directors       : Christopher Nolan
+  Writers         : Bob Kane, Christopher Nolan, Jonathan Nolan, Jerry Robinson, Bill Finger
+  Rating          : 
+  Votes           : 
+  Genres          : Superhero, Action, Crime fiction, Evil clown
+  Tagline         : Welcome to a world without rules.
+  Plot            : The Dark Knight is a 2008 superhero crime thriller film directed (truncated)...
+  Year            : 2008
+  Release_date    : 2008-07-16
 
 
 ==== Catalogue a movie directory
 
   ~/m> ls
   the dark knight
+  ~/m> myimdb-catalogue 
+  Usage: myimdb-catalogue [movie name]
+      -h, --help                       Displays this help info
+      -f, --force                      Force generate data even if already present
+      -m, --metadata                   Generates metadata (renames folders)
+      -i, --images                     Generates images (works properly only on windows)
+      -r, --recursive                  Generate data on all the directories given in current directory
+      -a, --apply-icon                 Finds first jpg or png in the folder and converts it to movie icon
   ~/m> myimdb-catalogue the\ dark\ knight/ 
-  "Fetching metadata for: the dark knight"
-  "Renaming: the dark knight to: the dark knight [2008] [8.9,420667] [Christopher Nolan]"
-  ~/m> ls
-  the dark knight [2008] [8.9,420667] [Christopher Nolan]
+  Fetching metadata for: the dark knight
+  Renaming: the dark knight to: the dark knight [2008] [8.9,430594] [Christopher Nolan]
 
 
 ==== As a library
@@ -39,26 +64,25 @@ Utility gem for fetching movie details.
   >> require 'myimdb'
   => true
   >> search_result = Myimdb::Search::Google.search_text('the dark knight', :restrict_to=> 'imdb.com')[0]
-  => {"GsearchResultClass"=>"GwebSearch", "title"=>"<b>The Dark Knight</b> (2008)", "url"=>"http://www.imdb.com/title/tt0468569/", "cacheUrl"=>"http://www.google.com/search?q=cache:6zAp1ivBuzEJ:www.imdb.com", "content"=>"Directed by Christopher Nolan. With Christian Bale, Heath Ledger, Aaron Eckhart.   Batman, Gordon and Harvey Dent are forced to deal with the chaos unleashed <b>...</b>", "visibleUrl"=>"www.imdb.com", "unescapedUrl"=>"http://www.imdb.com/title/tt0468569/", "titleNoFormatting"=>"The Dark Knight (2008)"}
-  >> site = Myimdb::Scraper::Imdb.new(search_result['url'])
-  => #<Myimdb::Scraper::Imdb:0x1023a2e80 @url="http://www.imdb.com/title/tt0468569/">
+  => {:url=>"http://www.imdb.com/title/tt0468569/", :title=>"The Dark Knight (2008)"}
+  >> site = Myimdb::Scraper::Imdb.new(search_result[:url])
+  => #<Myimdb::Scraper::Imdb:0x10227b160 @url="http://www.imdb.com/title/tt0468569/">
   >> site.rating
   => 8.9
   >> site.votes
-  => 420667
+  => 430594
   >> site.release_date.to_s
   => "2008-07-18"
 
+or
 
-== Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+  >> require 'myimdb'
+  => true
+  >> movie = ImdbMovie.search('the dark knight')
+  => #<Myimdb::Scraper::Imdb:0x10225b9f0 @url="http://www.imdb.com/title/tt0468569/">
+  >> movie.rating
+  => 8.9
+
 
 == Copyright
 

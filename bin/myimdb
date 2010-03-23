@@ -36,15 +36,16 @@ OptionParser.new do |opts|
     puts opts
     exit 1
   end
+  
+  # need a movie name
+  if ARGV.empty?
+    puts opts
+    exit(0)
+  end
 end
 
 # add imdb as default
 options.merge!(:imdb=> true) if options.empty?
-
-# need a movie name
-if ARGV.empty?
-  abort "Movie name required - exiting"
-end
 
 name = ARGV.join(' ')
 
