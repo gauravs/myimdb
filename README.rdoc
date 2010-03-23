@@ -57,9 +57,11 @@ Utility gem for fetching movie details.
   ~/m> myimdb-catalogue the\ dark\ knight/ 
   Fetching metadata for: the dark knight
   Renaming: the dark knight to: the dark knight [2008] [8.9,430594] [Christopher Nolan]
+  ~/m> ls
+  the dark knight [2008] [8.9,430594] [Christopher Nolan]
 
 
-==== As a library
+=== As a library
 
   >> require 'myimdb'
   => true
@@ -74,7 +76,7 @@ Utility gem for fetching movie details.
   >> site.release_date.to_s
   => "2008-07-18"
 
-or
+==== or
 
   >> require 'myimdb'
   => true
