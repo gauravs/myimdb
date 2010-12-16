@@ -30,7 +30,7 @@ module Myimdb
           @document ||= Nokogiri::HTML(open(@url))
         end
 
-        handle_exceptions_for :rating, :votes, :genres, :plot
+        handle_exceptions_for :rating, :votes, :genres, :plot, :image
     end
   end
 end

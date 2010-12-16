@@ -69,7 +69,7 @@ module Myimdb
           document['properties'][path]['values'].collect{ |obj| { :name=> obj['text'], :url=> obj['url'] } }
         end
         
-        handle_exceptions_for :directors, :directors_with_url, :writers, :writers_with_url, :genres, :tagline, :plot, :year, :image
+        handle_exceptions_for :directors, :directors_with_url, :writers, :writers_with_url, :genres, :tagline, :plot, :year, :image, :release_date
     end
   end
 end
