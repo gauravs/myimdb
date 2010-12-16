@@ -1,5 +1,6 @@
 class UnformattedHtml < Exception; end
 class DocumentNotFound < Exception; end
+class ScraperNotFound < Exception; end
 
 module HandleExceptions
   def self.included(base)
@@ -53,7 +54,18 @@ module Myimdb
           sprintf("%-15s : %s", meth.to_s.capitalize, data)
         end.join("\n")
       end
+      
+      def to_hash
+        movie_as_hash = {}
+        [:directors, :writers, :rating, :votes, :genres, :tagline, :plot, :year, :release_date].each do |meth|
+          movie_as_hash[meth] = send(meth)
+        end
+        movie_as_hash
+      end
 
+      def self.all
+        ['Freebase', 'Metacritic', 'RottenTomatoes', 'Imdb']
+      end
     end
   end
 end
