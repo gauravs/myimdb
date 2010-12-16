@@ -47,6 +47,7 @@ module Myimdb
       end
 
       def image
+        document['thumbnail']
       end
       
       private

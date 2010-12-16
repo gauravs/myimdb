@@ -9,7 +9,7 @@ module Myimdb
       end
 
       def strip_useless_chars(string)
-        string.gsub(/[^a-zA-z0-9\|\-_\(\)@$\/\\]/, '')
+        string.gsub(/[^a-zA-z0-9\|\-_\(\)@$\/\\ ,\.]/, '')
       end
     end
   end

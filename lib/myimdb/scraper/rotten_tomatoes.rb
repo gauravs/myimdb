@@ -6,19 +6,23 @@ module Myimdb
       end
 
       def rating
-        document.css("#tomatometer_data p:nth-child(4) span").inner_text.strip.to_i
+        document.css(".critic_stats span")[0].inner_text.to_f
       end
 
       def votes
-        document.css("#tomatometer_data p:nth-child(1) span").inner_text.strip.to_i
+        document.css(".critic_stats span")[1].text.to_i
       end
 
       def genres
-        document.css("#movie_stats .fl:first p:last .content a").inner_text.strip.to_a
+        document.css("span.label:contains('Genre:') + span.content span").collect{ |a| a.text }
       end
 
       def plot
         document.css("#movie_synopsis_all").inner_text.strip
+      end
+      
+      def image
+        document.css(".movie_poster_area a img").first['src']
       end
 
       private

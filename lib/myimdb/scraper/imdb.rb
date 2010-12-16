@@ -6,55 +6,51 @@ module Myimdb
       end
 
       def directors
-        document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| a.text }
+        document.css('#overview-top .txt-block h4:contains("Director") ~ a:not(:contains(" more "))').collect{ |a| a.text }
       end
 
       def directors_with_url
-        document.css('.info h5:contains("Director") + .info-content a:not(.tn15more)').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
+        document.css('#overview-top .txt-block h4:contains("Director") ~ a:not(:contains(" more "))').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
       end
 
       def writers
-        document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| a.text }
+        document.css('#overview-top .txt-block h4:contains("Writer") ~ a:not(:contains(" more "))').collect{ |a| a.text }
       end
 
       def writers_with_url
-        document.css('.info h5:contains("Writer") + .info-content a:not(.tn15more)').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
+        document.css('#overview-top .txt-block h4:contains("Writer") ~ a:not(:contains(" more "))').collect{ |a| {:name=> a.text, :url=> "http://www.imdb.com#{a['href']}" } }
       end
 
       def rating
-        document.css(".starbar-meta b").inner_text.strip.split('/').first.to_f
+        document.css(".star-box .rating-rating").inner_text.strip.split('/').first.to_f
       end
 
       def votes
-        document.css(".starbar-meta a").inner_text.strip.split(' ').first.sub(',', '').to_i
+        document.css(".star-box a[href='ratings']").inner_text.strip.split(' ').first.sub(',', '').to_i
       end
 
       def genres
-        document.css('.info h5:contains("Genre:") + .info-content a:not(.tn15more)').collect{ |a| a.text }
+        document.css('.see-more.inline.canwrap h4:contains("Genres:") ~ a:not(:contains(" more "))').collect{ |a| a.text }
       end
 
       def tagline
-        document.css('.info h5:contains("Tagline:") + .info-content').children[0].text.strip rescue nil
+        strip_useless_chars(document.css('.txt-block h4:contains("Taglines:")').first.parent.inner_text).gsub(/Taglines |See more/, '') rescue nil
       end
 
       def plot
-        document.css('.info h5:contains("Plot:") + .info-content').children[0].text.strip
+        strip_useless_chars(document.css('.article h2:contains("Storyline") ~ p').inner_text).gsub(/Written by.*/, '')
       end
 
       def year
-        document.css("div#tn15title a:first")[0].text.to_i
+        release_date.year
       end
 
       def release_date
-        Date.parse(document.css('.info h5:contains("Release Date:") + .info-content').inner_text)
+        Date.parse(document.css("a[title='See all release dates']").inner_text)
       end
 
       def image
-        image_url = document.css(".photo:first a").first['href']
-        unless image_url.nil? or image_url =~ /addposter/
-          image_document = Nokogiri::HTML(open("http://www.imdb.com#{image_url}"))
-          image_document.css('#principal img:first').first['src']
-        end
+        document.css('#img_primary img').first['src']
       end
 
       private
