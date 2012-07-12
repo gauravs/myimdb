@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{myimdb}
-  s.version = "0.4.8"
+  s.version = "0.4.9"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaurav"]
@@ -36,8 +36,9 @@ Gem::Specification.new do |s|
      "lib/myimdb/search/bing.rb",
      "lib/myimdb/search/google.rb",
      "myimdb.gemspec",
-     "test/helper.rb",
-     "test/test_myimdb.rb"
+     "test/test_myimdb.rb",
+     "test/test_google.rb",
+     "test/test_bing.rb"
   ]
   s.homepage = %q{http://github.com/gauravs/myimdb}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -46,8 +47,9 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Utility gem for fetching movie details.}
   s.test_files = [
-    "test/helper.rb",
-     "test/test_myimdb.rb"
+    "test/test_myimdb.rb",
+    "test/test_google.rb",
+    "test/test_bing.rb"
   ]
 
   if s.respond_to? :specification_version then
