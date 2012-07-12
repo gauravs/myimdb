@@ -22,7 +22,7 @@ module Myimdb
       end
 
       def rating
-        document.css(".star-box .rating-rating").inner_text.strip.split('/').first.to_f
+        document.css(".star-box-details span[itemprop='ratingValue']").inner_text.strip.to_f
       end
 
       def votes

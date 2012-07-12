@@ -1,6 +1,6 @@
-require 'myimdb/scraper/string_extensions'
-require 'myimdb/scraper/base'
-require 'myimdb/scraper/imdb'
-require 'myimdb/scraper/metacritic'
-require 'myimdb/scraper/rotten_tomatoes'
-require 'myimdb/scraper/freebase'
+require "#{File.dirname(__FILE__)}/scraper/string_extensions"
+require "#{File.dirname(__FILE__)}/scraper/base"
+require "#{File.dirname(__FILE__)}/scraper/imdb"
+require "#{File.dirname(__FILE__)}/scraper/metacritic"
+require "#{File.dirname(__FILE__)}/scraper/rotten_tomatoes"
+require "#{File.dirname(__FILE__)}/scraper/freebase"

@@ -1,4 +1,4 @@
-require 'httparty'
-require 'myimdb/search/base'
-require 'myimdb/search/google'
-require 'myimdb/search/bing'
+require "httparty"
+require "#{File.dirname(__FILE__)}/search/base"
+require "#{File.dirname(__FILE__)}/search/google"
+require "#{File.dirname(__FILE__)}/search/bing"
